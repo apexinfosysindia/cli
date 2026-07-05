@@ -1,0 +1,35 @@
+# =============================================================================
+# ApexOS skeleton provenance — written by `python -m apexos_harness package`.
+#
+# PIPELINE-OWNED SURFACES: `.apexos/**` and `.github/workflows/apexos-*.yml`
+# belong to the build-pipeline and are PRESERVED across upstream adoptions —
+# never hand-edit them in the product repo; regenerate via the harness.
+# Everything else in this repo is pipeline output from the upstream ref
+# recorded below (transform + patch queue, gate-clean at packaging time).
+# =============================================================================
+schema_version: 1
+repo: cli
+upstream:
+  url: https://github.com/home-assistant/cli
+  ref: 5.2.0
+  sha: c5f716eb5f62c337c603e144f23cd74ac25da98e
+apexos:
+  version: 0.1.1-dev
+  channel: dev
+packaged: '2026-07-05'
+build_pipeline:
+  org: apexinfosysindia
+  commit: 3f49834c8aa9f565dcd8d26da4539c54b66260f9
+engine: python
+src_subdir: .
+patches:
+- name: 001-drop-legacy-alias-vestiges.patch
+  status: clean
+  lines: 24
+- name: 002-apexos-banner.patch
+  status: clean
+  lines: 16
+gate:
+  violations: 0
+  allowed: 0
+  excluded_vendored: 0

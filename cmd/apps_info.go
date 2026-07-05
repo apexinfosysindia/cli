@@ -1,0 +1,63 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var appsInfoCmd = &cobra.Command{
+	Use:     "info [slug]",
+	Aliases: []string{"in", "info"},
+	Short:   "Show information about available ApexOS apps",
+	Long: `
+This command can provide information on all available apps or, if a slug
+is provided, information about a specific app.
+`,
+	Example: `
+  apex apps info
+  apex apps info core_ssh
+`,
+	ValidArgsFunction: appsCompletions,
+	Args:              cobra.MaximumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("apps info", "args", args)
+
+		section := "addons"
+		command := "{slug}/info"
+
+		url, err := helper.URLHelper(section, command)
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+			return
+		}
+
+		request := helper.GetJSONRequest()
+
+		slug := "self"
+		if len(args) > 0 {
+			slug = args[0]
+		}
+
+		request.SetPathParams(map[string]string{
+			"slug": slug,
+		})
+
+		resp, err := request.Get(url)
+		resp, err = helper.GenericJSONErrorHandling(resp, err)
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	appsCmd.AddCommand(appsInfoCmd)
+}

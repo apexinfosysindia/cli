@@ -1,0 +1,75 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var storeAppsUpdateCmd = &cobra.Command{
+	Use:     "update [slug]",
+	Aliases: []string{"upgrade", "up"},
+	Short:   "Upgrades a ApexOS app to the latest version",
+	Long: `
+This command can upgrade a ApexOS app to its latest version.
+It is currently not possible to upgrade/downgrade to a specific version.
+`,
+	Example: `
+  apex store apps update core_ssh
+`,
+	ValidArgsFunction: storeAppCompletions,
+	Args:              cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("store apps update", "args", args)
+
+		section := "store"
+		command := "addons/{slug}/update"
+
+		url, err := helper.URLHelper(section, command)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+			return
+		}
+
+		ProgressSpinner.Start()
+		request := helper.GetJSONRequest()
+		ProgressSpinner.Stop()
+
+		slug := args[0]
+
+		request.SetPathParams(map[string]string{
+			"slug": slug,
+		})
+
+		options := make(map[string]any)
+
+		backup, _ := cmd.Flags().GetBool("backup")
+		if cmd.Flags().Changed("backup") {
+			request.SetBody(options)
+			options["backup"] = backup
+		}
+
+		if len(options) > 0 {
+			slog.Debug("Request body", "options", options)
+			request.SetBody(options)
+		}
+
+		resp, err := request.Post(url)
+		resp, err = helper.GenericJSONErrorHandling(resp, err)
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	storeAppsUpdateCmd.Flags().Bool("backup", false, "Create partial backup before update")
+	storeAppsUpdateCmd.RegisterFlagCompletionFunc("backup", boolCompletions)
+	storeAppsCmd.AddCommand(storeAppsUpdateCmd)
+}

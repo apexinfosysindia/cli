@@ -1,0 +1,52 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var osDataDiskMoveCmd = &cobra.Command{
+	Use:     "move [disk]",
+	Aliases: []string{"migrate", "mov"},
+	Short:   "Migrate ApexOS Operating-System data partition",
+	Long: `
+This commands triggers an migration of the ApexOS Operating-System
+data partition to a new harddisk. The system reboots afterwards!
+`,
+	Example: `
+  apex os datadisk move /dev/sda
+`,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		if toComplete == "" {
+			return []string{"/dev/"}, cobra.ShellCompDirectiveNoSpace
+		}
+		return nil, cobra.ShellCompDirectiveDefault
+	},
+	Args: cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("os datadisk move", "args", args)
+
+		section := "os"
+		command := "datadisk/move"
+		options := make(map[string]any)
+
+		options["device"] = args[0]
+
+		resp, err := helper.GenericJSONPost(section, command, options)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	osDataDiskCmd.AddCommand(osDataDiskMoveCmd)
+}

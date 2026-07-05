@@ -1,0 +1,60 @@
+package cmd
+
+import (
+	"log/slog"
+	"strings"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var osBoardsGreenOptionsCmd = &cobra.Command{
+	Use:     "options",
+	Aliases: []string{"option", "opt", "opts", "op"},
+	Short:   "Change settings of the current Green board",
+	Long: `
+This command allows you to change settings of the Green board that Home
+Assistant is running on.`,
+	Example: `
+  apex os boards green options --activity-led=false`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("os boards green options", "args", args)
+
+		section := "os"
+		command := "boards/green"
+
+		options := make(map[string]any)
+
+		for _, value := range []string{
+			"activity-led",
+			"power-led",
+			"system-health-led",
+		} {
+			data, err := cmd.Flags().GetBool(value)
+			if err == nil && cmd.Flags().Changed(value) {
+				options[strings.ReplaceAll(value, "-", "_")] = data
+			}
+		}
+
+		resp, err := helper.GenericJSONPost(section, command, options)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	osBoardsGreenOptionsCmd.Flags().Bool("activity-led", true, "Enable/disable the green activity LED")
+	osBoardsGreenOptionsCmd.Flags().Bool("power-led", true, "Enable/disable the white power LED")
+	osBoardsGreenOptionsCmd.Flags().Bool("system-health-led", true, "Enable/disable the yellow system health LED")
+	osBoardsGreenOptionsCmd.Flags().Lookup("activity-led").NoOptDefVal = "true"
+	osBoardsGreenOptionsCmd.Flags().Lookup("power-led").NoOptDefVal = "true"
+	osBoardsGreenOptionsCmd.Flags().Lookup("system-health-led").NoOptDefVal = "true"
+
+	osBoardsGreenCmd.AddCommand(osBoardsGreenOptionsCmd)
+}

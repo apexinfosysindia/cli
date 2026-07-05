@@ -1,0 +1,39 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var backupsThawCmd = &cobra.Command{
+	Use:     "thaw",
+	Aliases: []string{"th"},
+	Short:   "Thaw supervisor after an external backup",
+	Long: `
+End a freeze initiated by the freeze command after an external backup or snapshot
+has completed.`,
+	Example: `
+  apex backups thaw`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("backups thaw", "args", args)
+
+		section := "backups"
+		command := "thaw"
+
+		resp, err := helper.GenericJSONPost(section, command, nil)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	backupsCmd.AddCommand(backupsThawCmd)
+}
