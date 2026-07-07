@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/apexinfosysindia/cli/client"
+	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 )
 

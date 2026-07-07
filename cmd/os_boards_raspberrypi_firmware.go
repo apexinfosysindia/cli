@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	resty "github.com/go-resty/resty/v2"
 	helper "github.com/apexinfosysindia/cli/client"
+	resty "github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 )
 

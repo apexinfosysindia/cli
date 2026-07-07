@@ -5,8 +5,8 @@ import (
 )
 
 var coreCmd = &cobra.Command{
-	Use:     "core",
-	Short:   "Provides control of the ApexOS Core",
+	Use:   "core",
+	Short: "Provides control of the ApexOS Core",
 	Long: `
 This command provides a set of subcommands to control the ApexOS Core
 instance running on this installation.
