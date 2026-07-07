@@ -9,8 +9,8 @@ import (
 )
 
 var osCmd = &cobra.Command{
-	Use:     "os",
-	Short:   "Operating System specific for updating, info and configuration imports",
+	Use:   "os",
+	Short: "Operating System specific for updating, info and configuration imports",
 	Long: `
 This command set is specifically designed for the ApexOS Operating System
 and only works on those systems. It provides an interface to get information
