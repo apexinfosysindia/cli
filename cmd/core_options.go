@@ -76,7 +76,7 @@ instance running on your ApexOS system.`,
 func init() {
 	coreOptionsCmd.Flags().Bool("boot", true, "Start Core on boot")
 	coreOptionsCmd.Flags().String("image", "", "Optional image")
-	coreOptionsCmd.Flags().Int("port", 8123, "Port to access ApexOS Core")
+	coreOptionsCmd.Flags().Int("port", 1702, "Port to access ApexOS Core")
 	coreOptionsCmd.Flags().Bool("ssl", false, "Use SSL")
 	coreOptionsCmd.Flags().Bool("watchdog", true, "Use watchdog")
 	coreOptionsCmd.Flags().String("refresh-token", "", "Refresh token")

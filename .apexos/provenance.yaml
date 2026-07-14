@@ -14,21 +14,24 @@ upstream:
   ref: 5.2.0
   sha: c5f716eb5f62c337c603e144f23cd74ac25da98e
 apexos:
-  version: 0.1.1-dev
+  version: 0.1.6-dev
   channel: dev
-packaged: '2026-07-07'
+packaged: '2026-07-12'
 build_pipeline:
   org: apexinfosysindia
-  commit: a10c22cdcb873eee6a0256a17a7bd0594341d40e
+  commit: 55787070150c15a9d44128b99d11aec23c91c1d5
 engine: python
 src_subdir: .
 patches:
-- name: 001-drop-legacy-alias-vestiges.patch
-  status: clean
-  lines: 24
-- name: 002-apexos-banner.patch
-  status: clean
-  lines: 16
+  - name: 001-drop-legacy-alias-vestiges.patch
+    status: clean
+    lines: 24
+  - name: 002-apexos-banner.patch
+    status: clean
+    lines: 16
+  - name: 003-core-options-port-default-1702.patch
+    status: clean
+    lines: 2
 gate:
   violations: 0
   allowed: 0
