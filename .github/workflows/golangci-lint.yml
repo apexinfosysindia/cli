@@ -9,7 +9,7 @@ on:
 jobs:
   golangci:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, apexos-builder]
     steps:
       - uses: actions/checkout@v6.0.3
       - name: golangci-lint

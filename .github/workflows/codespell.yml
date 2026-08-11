@@ -8,7 +8,7 @@ on:
 
 jobs:
   codespell:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, apexos-builder]
     steps:
       - uses: actions/checkout@v6.0.3
       - uses: codespell-project/actions-codespell@v2.2
