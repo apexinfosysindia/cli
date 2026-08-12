@@ -2,19 +2,26 @@ name: build
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   release:
     types: ["published"]
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
 
 env:
   GOLANG_VERSION: "1.25"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build ${{ matrix.variant.name }}
-    runs-on: [self-hosted, apexos-builder]
+    # Release assets are attached from this job, so it needs write access to
+    # repository contents; the rest of the run stays read-only.
+    permissions:
+      contents: write
+    runs-on: [self-hosted, apexos-builder, linux, X64]
     strategy:
       matrix:
         variant:
@@ -32,13 +39,25 @@ jobs:
     - name: Build ${{ matrix.variant.name }}
       run: CGO_ENABLED=0 ${{ matrix.variant.args }} go build -ldflags="-s -w" -o "${{ matrix.variant.name }}"
 
+    # The previous release-asset action has been archived by its author and
+    # still targets an unsupported Node runtime, so it cannot execute on a
+    # current runner at all. Upload straight to the release asset endpoint
+    # with curl, which is the only dependency the builders are guaranteed
+    # to have.
     - name: Upload release asset
       if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1.0.2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: "${{ github.workspace }}/${{ matrix.variant.name }}"
-        asset_name: ${{ matrix.variant.name }}
-        asset_content_type: application/x-binary
+        RELEASE_ID: ${{ github.event.release.id }}
+        ASSET_NAME: ${{ matrix.variant.name }}
+        ASSET_PATH: ${{ github.workspace }}/${{ matrix.variant.name }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -eu
+        curl --fail-with-body -sS -X POST \
+          -H "Authorization: Bearer ${TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary "@${ASSET_PATH}" \
+          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}/assets?name=${ASSET_NAME}" \
+          > /dev/null
