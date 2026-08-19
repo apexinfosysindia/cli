@@ -13,8 +13,8 @@ var osBoardsGreenOptionsCmd = &cobra.Command{
 	Aliases: []string{"option", "opt", "opts", "op"},
 	Short:   "Change settings of the current Green board",
 	Long: `
-This command allows you to change settings of the Green board that Home
-Assistant is running on.`,
+This command allows you to change settings of the Green board that ApexOS
+is running on.`,
 	Example: `
   apex os boards green options --activity-led=false`,
 	ValidArgsFunction: cobra.NoFileCompletions,

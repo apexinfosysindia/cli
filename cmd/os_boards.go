@@ -8,8 +8,8 @@ var osBoardsCmd = &cobra.Command{
 	Use:   "boards",
 	Short: "See or change settings of the current board",
 	Long: `
-This command allows you to see or change settings of the board that Home
-Assistant is running on.`,
+This command allows you to see or change settings of the board that ApexOS
+is running on.`,
 	Example: `
   apex os boards yellow`,
 }

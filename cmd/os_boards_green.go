@@ -12,8 +12,8 @@ var osBoardsGreenCmd = &cobra.Command{
 	Aliases: []string{"grn"},
 	Short:   "See or change settings of the current Green board",
 	Long: `
-This command allows you to see or change settings of the Green board that Home
-Assistant is running on.`,
+This command allows you to see or change settings of the Green board that ApexOS
+is running on.`,
 	Example: `
   apex os boards green`,
 	ValidArgsFunction: cobra.NoFileCompletions,
