@@ -13,8 +13,8 @@ var osBoardsYellowOptionsCmd = &cobra.Command{
 	Aliases: []string{"option", "opt", "opts", "op"},
 	Short:   "Change settings of the current Yellow board",
 	Long: `
-This command allows you to change settings of the Yellow board that Home
-Assistant is running on. A host reboot is required for changes to take effect.`,
+This command allows you to change settings of the Yellow board that ApexOS
+is running on. A host reboot is required for changes to take effect.`,
 	Example: `
   apex os boards yellow options --heartbeat-led=false`,
 	ValidArgsFunction: cobra.NoFileCompletions,

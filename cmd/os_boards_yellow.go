@@ -12,8 +12,8 @@ var osBoardsYellowCmd = &cobra.Command{
 	Aliases: []string{"yell"},
 	Short:   "See or change settings of the current Yellow board",
 	Long: `
-This command allows you to see or change settings of the Yellow board that Home
-Assistant is running on.`,
+This command allows you to see or change settings of the Yellow board that ApexOS
+is running on.`,
 	Example: `
   apex os boards yellow`,
 	ValidArgsFunction: cobra.NoFileCompletions,
