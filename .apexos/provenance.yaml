@@ -11,15 +11,15 @@ schema_version: 1
 repo: cli
 upstream:
   url: https://github.com/home-assistant/cli
-  ref: 5.2.0
-  sha: c5f716eb5f62c337c603e144f23cd74ac25da98e
+  ref: 5.4.0
+  sha: 8b20d793db90efb4a38feec5d56cec63e8136aa6
 apexos:
-  version: 0.1.6-dev
+  version: 0.1.17-dev
   channel: dev
-packaged: '2026-07-12'
+packaged: '2026-09-03'
 build_pipeline:
   org: apexinfosysindia
-  commit: 55787070150c15a9d44128b99d11aec23c91c1d5
+  commit: f8a5d63a68f4d4c05b396a3aaa2e134d3d9209b7
 engine: python
 src_subdir: .
 patches:
@@ -32,6 +32,9 @@ patches:
   - name: 003-core-options-port-default-1702.patch
     status: clean
     lines: 2
+  - name: 004-golangci-lint-setup-go.patch
+    status: clean
+    lines: 12
 gate:
   violations: 0
   allowed: 0

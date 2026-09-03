@@ -164,15 +164,22 @@ var bannerCmd = &cobra.Command{
 		}
 
 		protocol := "http"
-		if (*coreinfo)["ssl"] == "true" {
+		defaultPort := 80
+		if ssl, _ := (*coreinfo)["ssl"].(bool); ssl {
 			protocol = "https"
+			defaultPort = 443
 		}
 
 		port, _ := (*coreinfo)["port"].(float64)
+		coreURL := fmt.Sprintf("%s://%s.local", protocol, (*hostinfo)["hostname"])
+		if int(port) != defaultPort {
+			coreURL = fmt.Sprintf("%s:%d", coreURL, int(port))
+		}
+
 		fmt.Printf("  %-25s %s\n", "OS Version:", (*hostinfo)["operating_system"])
 		fmt.Printf("  %-25s %s\n", "ApexOS Core:", (*coreinfo)["version"])
 		fmt.Println()
-		fmt.Printf("  %-25s %s://%s.local:%d\n", "ApexOS URL:", protocol, (*hostinfo)["hostname"], int(port))
+		fmt.Printf("  %-25s %s\n", "ApexOS URL:", coreURL)
 		fmt.Printf("  %-25s http://%s.local:%d\n", "Observer URL:", (*hostinfo)["hostname"], 4357)
 		fmt.Println("")
 		fmt.Println("System is ready! Use browser or app to configure.")
@@ -182,4 +189,5 @@ var bannerCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(bannerCmd)
 	bannerCmd.Flags().Bool("no-wait", false, "Don't wait until Supervisor is started")
+	bannerCmd.RegisterFlagCompletionFunc("no-wait", boolCompletions)
 }
