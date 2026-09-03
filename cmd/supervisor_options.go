@@ -15,8 +15,8 @@ var supervisorOptionsCmd = &cobra.Command{
 	Aliases: []string{"option", "opt", "opts", "op"},
 	Short:   "Allows you to set options on the ApexOS Supervisor",
 	Long: `
-This command allows you to set configuration options for on the ApexOS
-Supervisor running on your ApexOS system.`,
+This command allows you to set configuration options for on the ApexOS Supervisor
+running on your ApexOS system.`,
 	Example: `
   apex supervisor options --channel beta
   apex supervisor options --feature-flag supervisor_v2_api=true`,

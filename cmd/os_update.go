@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log/slog"
 
 	helper "github.com/apexinfosysindia/cli/client"
@@ -12,8 +13,8 @@ var osUpdateCmd = &cobra.Command{
 	Aliases: []string{"upgrade", "downgrade", "up", "down"},
 	Short:   "Updates the ApexOS Operating System",
 	Long: `
-Using this command you can upgrade or downgrade the ApexOS 
-Operating System to the latest version or the version specified.
+Using this command you can upgrade or downgrade the ApexOS Operating System
+to the latest version or the version specified.
 `,
 	Example: `
   apex os update
@@ -40,8 +41,10 @@ Operating System to the latest version or the version specified.
 		if err != nil {
 			helper.PrintError(err)
 			ExitWithError = true
+		} else if helper.ShowJSONResponse(resp) {
+			fmt.Println("\nOS update applied. Reboot the device using `apex host reboot` to finish the update.")
 		} else {
-			ExitWithError = !helper.ShowJSONResponse(resp)
+			ExitWithError = true
 		}
 	},
 }

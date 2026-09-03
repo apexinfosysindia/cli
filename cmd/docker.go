@@ -14,7 +14,8 @@ ApexOS is running on. It allows you to do things like use private OCI registries
 	Example: `
   apex docker info
   apex docker options
-  apex docker registries`,
+  apex docker registries
+  apex docker reset-storage`,
 }
 
 func init() {
