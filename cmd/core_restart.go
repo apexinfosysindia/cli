@@ -1,0 +1,59 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var coreRestartCmd = &cobra.Command{
+	Use:     "restart",
+	Aliases: []string{"reboot"},
+	Short:   "Restarts the ApexOS Core",
+	Long: `
+Restart the ApexOS Core instance running on your system`,
+	Example: `
+  apex core restart`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("core restart", "args", args)
+
+		section := "core"
+		command := "restart"
+
+		options := make(map[string]any)
+
+		safeMode, err := cmd.Flags().GetBool("safe-mode")
+		if err == nil && safeMode {
+			options["safe_mode"] = safeMode
+		}
+		force, err := cmd.Flags().GetBool("force")
+		if err == nil && force {
+			options["force"] = force
+		}
+
+		ProgressSpinner.Start()
+		resp, err := helper.GenericJSONPostTimeout(section, command, options, helper.ContainerOperationTimeout)
+		ProgressSpinner.Stop()
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	coreRestartCmd.Flags().BoolP("safe-mode", "s", false, "Restart ApexOS in safe mode")
+	coreRestartCmd.Flags().BoolP("force", "f", false, "Force restart during an offline db migration")
+	coreRestartCmd.Flags().Lookup("safe-mode").NoOptDefVal = "true"
+	coreRestartCmd.Flags().Lookup("force").NoOptDefVal = "true"
+	coreRestartCmd.RegisterFlagCompletionFunc("safe-mode", boolCompletions)
+	coreRestartCmd.RegisterFlagCompletionFunc("force", boolCompletions)
+
+	coreCmd.AddCommand(coreRestartCmd)
+}

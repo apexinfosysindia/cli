@@ -1,0 +1,51 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var authCacheCmd = &cobra.Command{
+	Use:     "cache",
+	Aliases: []string{"data", "ca"},
+	Short:   "Reset the auth cache of ApexOS on Supervisor.",
+	Long: `
+This command allows you to reset the internal password cache of a ApexOS auth.
+`,
+	Example: `
+  apex authentication cache
+`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("auth cache", "args", args)
+
+		section := "auth"
+		command := "cache"
+
+		url, err := helper.URLHelper(section, command)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+			return
+		}
+
+		request := helper.GetJSONRequest()
+
+		resp, err := request.Delete(url)
+		resp, err = helper.GenericJSONErrorHandling(resp, err)
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	authCmd.AddCommand(authCacheCmd)
+}

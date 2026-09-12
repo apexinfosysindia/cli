@@ -1,0 +1,67 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var osDataDiskWipeCmd = &cobra.Command{
+	Use:     "wipe",
+	Aliases: []string{"wipe", "reset", "erase"},
+	Short:   "Wipe the ApexOS Operating-System data partition",
+	Long: `
+This command will wipe all config/settings for apps, ApexOS and the Operating
+System and any locally stored data in config, backups, media, etc. The machine will
+reboot during this.
+
+After the reboot completes the latest stable version of ApexOS and Supervisor
+will be downloaded. Once the process is complete you will see onboarding, like
+during initial setup.
+
+This wipe also include network settings. So after the reboot you may need to reconfigure
+those in order to access ApexOS again.
+
+Please note, this command is limited due to security reasons, and will
+only work on some locations. For example, the Operating System CLI.
+`,
+	Example: `
+  apex os datadisk wipe
+`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("os datadisk wipe", "args", args)
+
+		section := "os"
+		command := "datadisk/wipe"
+
+		confirmed, err := helper.AskForConfirmation(`
+This will completely wipe the datadisk. This process is irreversible.
+Are you sure you want to proceed?`, 0)
+
+		if err != nil {
+			cmd.PrintErrln("Aborted:", err)
+			ExitWithError = true
+			return
+		}
+
+		if confirmed {
+			resp, err := helper.GenericJSONPost(section, command, nil)
+			if err != nil {
+				helper.PrintError(err)
+				ExitWithError = true
+			} else {
+				ExitWithError = !helper.ShowJSONResponse(resp)
+			}
+		} else {
+			cmd.PrintErrln("Aborted.")
+			ExitWithError = true
+		}
+	},
+}
+
+func init() {
+	osDataDiskCmd.AddCommand(osDataDiskWipeCmd)
+}

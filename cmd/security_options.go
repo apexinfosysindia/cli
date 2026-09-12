@@ -1,0 +1,63 @@
+package cmd
+
+import (
+	"log/slog"
+	"strings"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var securityOptionsCmd = &cobra.Command{
+	Use:     "options",
+	Aliases: []string{"option", "opt", "opts", "op"},
+	Short:   "Allow to set options for the Security backend",
+	Long: `
+This command allows you to set configuration options for the internally
+ApexOS Security backend.
+`,
+	Example: `
+  apex security options --force-security=True
+`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("security options", "args", args)
+
+		section := "security"
+		command := "options"
+
+		options := make(map[string]any)
+
+		for _, value := range []string{
+			"pwned",
+			"force-security",
+		} {
+			data, err := cmd.Flags().GetBool(value)
+			if err == nil && cmd.Flags().Changed(value) {
+				options[strings.ReplaceAll(value, "-", "_")] = data
+			}
+		}
+
+		resp, err := helper.GenericJSONPost(section, command, options)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	securityOptionsCmd.Flags().BoolP("pwned", "", true, "Enable/Disable pwned check the backend")
+	securityOptionsCmd.Flags().BoolP("force-security", "", false, "Enable/Disable force-security on the backend")
+
+	securityOptionsCmd.Flags().Lookup("pwned").NoOptDefVal = "true"
+	securityOptionsCmd.Flags().Lookup("force-security").NoOptDefVal = "false"
+
+	securityOptionsCmd.RegisterFlagCompletionFunc("pwned", boolCompletions)
+	securityOptionsCmd.RegisterFlagCompletionFunc("force-security", boolCompletions)
+
+	securityCmd.AddCommand(securityOptionsCmd)
+}

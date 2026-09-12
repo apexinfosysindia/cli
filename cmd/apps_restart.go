@@ -1,0 +1,58 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var appsRestartCmd = &cobra.Command{
+	Use:     "restart [slug]",
+	Aliases: []string{"reboot"},
+	Short:   "Restarts a ApexOS app",
+	Long: `
+Restart a ApexOS app
+`,
+	Example: `
+  apex apps restart core_ssh
+`,
+	ValidArgsFunction: appsCompletions,
+	Args:              cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("apps restart", "args", args)
+
+		section := "addons"
+		command := "{slug}/restart"
+
+		url, err := helper.URLHelper(section, command)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+			return
+		}
+
+		request := helper.GetJSONRequestTimeout(helper.ContainerOperationTimeout)
+
+		slug := args[0]
+
+		request.SetPathParams(map[string]string{
+			"slug": slug,
+		})
+
+		resp, err := request.Post(url)
+		resp, err = helper.GenericJSONErrorHandling(resp, err)
+
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+
+	appsCmd.AddCommand(appsRestartCmd)
+}

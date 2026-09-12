@@ -1,0 +1,40 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var supervisorStatsCmd = &cobra.Command{
+	Use:     "stats",
+	Aliases: []string{"status", "stat", "st"},
+	Short:   "Provides system usage stats of the ApexOS Supervisor",
+	Long: `
+Provides insight into the system usage stats of the ApexOS Supervisor.
+It shows you how much CPU, memory, disk & network resources it uses.`,
+	Example: `
+  apex supervisor stats`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("supervisor stats", "args", args)
+
+		section := "supervisor"
+		command := "stats"
+
+		resp, err := helper.GenericJSONGet(section, command)
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+
+	},
+}
+
+func init() {
+	supervisorCmd.AddCommand(supervisorStatsCmd)
+}

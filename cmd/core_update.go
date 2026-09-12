@@ -1,0 +1,58 @@
+package cmd
+
+import (
+	"log/slog"
+
+	helper "github.com/apexinfosysindia/cli/client"
+	"github.com/spf13/cobra"
+)
+
+var coreUpdateCmd = &cobra.Command{
+	Use:     "update",
+	Aliases: []string{"upgrade", "downgrade", "up", "down"},
+	Short:   "Updates the ApexOS Core",
+	Long: `
+Using this command you can upgrade or downgrade the ApexOS Core instance
+running on your system to the latest version or the version specified.`,
+	Example: `
+  apex core update
+  apex core update --version 0.105.4`,
+	ValidArgsFunction: cobra.NoFileCompletions,
+	Args:              cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		slog.Debug("core update", "args", args)
+
+		section := "core"
+		command := "update"
+
+		options := make(map[string]any)
+
+		version, _ := cmd.Flags().GetString("version")
+		if version != "" {
+			options["version"] = version
+		}
+
+		backup, _ := cmd.Flags().GetBool("backup")
+		if cmd.Flags().Changed("backup") {
+			options["backup"] = backup
+		}
+
+		ProgressSpinner.Start()
+		resp, err := helper.GenericJSONPostTimeout(section, command, options, helper.ContainerDownloadTimeout)
+		ProgressSpinner.Stop()
+		if err != nil {
+			helper.PrintError(err)
+			ExitWithError = true
+		} else {
+			ExitWithError = !helper.ShowJSONResponse(resp)
+		}
+	},
+}
+
+func init() {
+	coreUpdateCmd.Flags().StringP("version", "", "", "Version to update to")
+	coreUpdateCmd.Flags().Bool("backup", false, "Create partial backup before update")
+	coreUpdateCmd.RegisterFlagCompletionFunc("version", cobra.NoFileCompletions)
+	coreUpdateCmd.RegisterFlagCompletionFunc("backup", boolCompletions)
+	coreCmd.AddCommand(coreUpdateCmd)
+}

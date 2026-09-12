@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: ["published"]
+  pull_request:
+    branches: [main]
+
+env:
+  GOLANG_VERSION: "1.25"
+
+jobs:
+  build:
+    name: Build ${{ matrix.variant.name }}
+    runs-on: ${{ fromJSON(vars.APEXOS_RUNSON_AMD64 || '["self-hosted","apexos-builder","linux","X64"]') }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        variant:
+          - {"name": "apex_amd64", "args": "GOARCH=amd64"}
+          - {"name": "apex_aarch64", "args": "GOARCH=arm64"}
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v7.0.1
+
+    - name: Setup go ${{ env.GOLANG_VERSION }}
+      uses: actions/setup-go@v7.0.0
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+
+    - name: Build ${{ matrix.variant.name }}
+      run: CGO_ENABLED=0 ${{ matrix.variant.args }} go build -ldflags="-s -w" -o "${{ matrix.variant.name }}"
+
+    - name: Upload release asset
+      if: github.event_name == 'release'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: gh release upload "${{ github.event.release.tag_name }}" "${{ matrix.variant.name }}" --clobber
