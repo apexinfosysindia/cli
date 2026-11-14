@@ -18,7 +18,7 @@ The CLI is communicating with the Supervisor using the Supervisor's HTTP REST AP
 ## Key Technologies
 - **Language**: Go (use modern syntax)
 - **CLI Framework**: Cobra (github.com/spf13/cobra)
-- **HTTP Client**: Resty (github.com/go-resty/resty/v2)
+- **HTTP Client**: Go stdlib net/http, wrapped by `client/request.go`
 - **Configuration**: Viper (github.com/spf13/viper)
 - **Logging**: Go stdlib log/slog
 
@@ -60,7 +60,7 @@ The CLI provides the following main command categories:
 
 ## Architecture Notes
 - Uses Cobra for command structure and flag parsing
-- Resty for HTTP API calls to ApexOS Supervisor
+- Go stdlib net/http for HTTP API calls to ApexOS Supervisor
 - Viper for configuration management
 - Go stdlib log/slog for structured logging
 - Custom spinner implementation for progress indication
@@ -72,7 +72,7 @@ The CLI provides the following main command categories:
 ## Contributing Guidelines
 1. Create feature branch
 2. Commit changes
-3. Rebase against master
+3. Rebase against main
 4. Run tests with `go test ./...`
 5. Format code with `gofmt -s`
 6. Create Pull Request
