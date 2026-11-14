@@ -13,7 +13,8 @@ The multicast command allows you to manage the internal ApexOS Multicast
 backend by exposing commands to view, monitor, configure and control it.`,
 	Example: `
   apex multicast info
-  apex multicast update`,
+  apex multicast update
+  apex multicast options --enabled=false`,
 }
 
 func init() {

@@ -11,15 +11,15 @@ schema_version: 1
 repo: cli
 upstream:
   url: https://github.com/home-assistant/cli
-  ref: 5.5.0
-  sha: 074b29fb3dce90561d8d15bbdce950ae8c15dbe2
+  ref: 5.7.0
+  sha: 92d4d6f6cf773e42bfc93b52a5b606141a021c8c
 apexos:
   version: 0.1.17-dev
   channel: dev
-packaged: '2026-09-16'
+packaged: '2026-11-15'
 build_pipeline:
   org: apexinfosysindia
-  commit: ac7fe4fd8fb84b6b496cc4a795084633bac2ab77
+  commit: 3e3162e4c5b62b9a70c8e978ced37cbf0add09f4
 engine: python
 src_subdir: .
 patches:

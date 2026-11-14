@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/apexinfosysindia/cli/client"
-	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +40,7 @@ func addLogsFlags(cmd *cobra.Command) {
 	cmd.RegisterFlagCompletionFunc("boot", hostBootCompletions)
 }
 
-func processLogsFlags(section string, cmd *cobra.Command) (*resty.Request, error) {
+func processLogsFlags(section string, cmd *cobra.Command) (*client.Request, error) {
 	command := "logs"
 
 	boot, _ := cmd.Flags().GetString("boot")
