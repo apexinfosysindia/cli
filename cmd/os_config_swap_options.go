@@ -41,8 +41,12 @@ This command allows you to override how the ApexOS uses swap.`,
 		if err != nil {
 			helper.PrintError(err)
 			ExitWithError = true
+		} else if helper.ShowJSONResponse(resp) {
+			if len(options) > 0 && !helper.RawJSON {
+				fmt.Println("\nSwap settings saved. Reboot the device using `apex host reboot` to apply the changes.")
+			}
 		} else {
-			ExitWithError = !helper.ShowJSONResponse(resp)
+			ExitWithError = true
 		}
 	},
 }

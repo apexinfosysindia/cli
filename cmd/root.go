@@ -20,6 +20,7 @@ var cfgFile string
 var endPoint string
 var logLevel string
 var apiToken string
+var apexSource string
 var rawJSON bool
 var noProgress bool
 
@@ -42,7 +43,7 @@ you to control and configure different aspects of ApexOS`,
 			slog.SetLogLoggerLevel(level)
 		}
 
-		helper.RawJSON = viper.GetBool("raw-json")
+		helper.RawJSON = viper.GetBool("raw-json") && cmd.Name() != cobra.ShellCompRequestCmd
 
 		// Only shows spinner output when we have a TTY
 		if !noProgress && term.IsTerminal(int(os.Stdout.Fd())) {
@@ -54,6 +55,7 @@ you to control and configure different aspects of ApexOS`,
 			"apiToken", viper.GetString("api-token"),
 			"cfgFile", viper.GetString("config"),
 			"endpoint", viper.GetString("endpoint"),
+			"apexSource", viper.GetString("apex-source"),
 			"logLevel", viper.GetString("log-level"),
 			"noProgress", viper.GetBool("no-progress"),
 			"rawJSON", viper.GetBool("raw-json"),
@@ -79,9 +81,10 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Optional config file (default is $HOME/.apexos.yaml)")
-	rootCmd.PersistentFlags().StringVar(&endPoint, "endpoint", "", "Endpoint for ApexOS Supervisor (default is 'supervisor')")
+	rootCmd.PersistentFlags().StringVar(&endPoint, "endpoint", "", "Endpoint for ApexOS Supervisor, use unix:///path for a Unix socket (default is $SUPERVISOR_SOCKET if set, else 'supervisor')")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "", "Log level (defaults to "+slog.LevelWarn.String()+")")
 	rootCmd.PersistentFlags().StringVar(&apiToken, "api-token", "", "ApexOS Supervisor API token")
+	rootCmd.PersistentFlags().StringVar(&apexSource, "apex-source", "", "Identify the caller to Supervisor in the X-Apex-Source header (not sent by default)")
 	rootCmd.PersistentFlags().BoolVar(&rawJSON, "raw-json", false, "Output raw JSON from the API")
 	rootCmd.PersistentFlags().BoolVar(&noProgress, "no-progress", false, "Disable the progress spinner")
 
@@ -95,6 +98,7 @@ func init() {
 		}, cobra.ShellCompDirectiveNoFileComp
 	})
 	rootCmd.RegisterFlagCompletionFunc("api-token", cobra.NoFileCompletions)
+	rootCmd.RegisterFlagCompletionFunc("apex-source", cobra.NoFileCompletions)
 	rootCmd.RegisterFlagCompletionFunc("raw-json", boolCompletions)
 	rootCmd.RegisterFlagCompletionFunc("no-progress", boolCompletions)
 	rootCmd.MarkPersistentFlagFilename("config", "yaml", "yml")
@@ -103,16 +107,26 @@ func init() {
 	viper.BindPFlag("endpoint", rootCmd.PersistentFlags().Lookup("endpoint"))
 	viper.BindPFlag("log-level", rootCmd.PersistentFlags().Lookup("log-level"))
 	viper.BindPFlag("api-token", rootCmd.PersistentFlags().Lookup("api-token"))
+	viper.BindPFlag("apex-source", rootCmd.PersistentFlags().Lookup("apex-source"))
 	viper.BindPFlag("raw-json", rootCmd.PersistentFlags().Lookup("raw-json"))
 	viper.BindPFlag("no-progress", rootCmd.PersistentFlags().Lookup("no-progress"))
 
-	viper.SetDefault("endpoint", "supervisor")
+	viper.SetDefault("endpoint", defaultEndpoint())
 	viper.SetDefault("log-level", "warn")
 	viper.SetDefault("api-token", "")
 
 	// Configure global spinner
 	ProgressSpinner.Suffix = " Processing..."
 	ProgressSpinner.FinalMSG = "Processing... Done.\n\n"
+}
+
+// defaultEndpoint returns the endpoint used when none is configured. Supervisor
+// gives apps a socket of their own in SUPERVISOR_SOCKET, prefer it over TCP.
+func defaultEndpoint() string {
+	if socket := os.Getenv("SUPERVISOR_SOCKET"); socket != "" {
+		return helper.UnixSocketScheme + socket
+	}
+	return "supervisor"
 }
 
 // initConfig reads in config file and ENV variables if set.
